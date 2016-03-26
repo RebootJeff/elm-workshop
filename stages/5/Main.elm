@@ -58,9 +58,12 @@ searchResultDecoder =
   Json.Decode.object3
     SearchResult
     -- See https://developer.github.com/v3/search/#example
-    ("TODO what field goes here?" := Json.Decode.int)
-    ("TODO what field goes here?" := Json.Decode.string)
-    ("TODO what field goes here?" := Json.Decode.int)
+    -- ("TODO what field goes here?" := Json.Decode.int)
+    -- ("TODO what field goes here?" := Json.Decode.string)
+    -- ("TODO what field goes here?" := Json.Decode.int)
+    ("id" := Json.Decode.int)
+    ("name" := Json.Decode.string)
+    ("stargazers_count" := Json.Decode.int)
 
 
 type alias Model =
@@ -97,7 +100,12 @@ view address model =
         , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
         ]
     , input [ class "search-query", onInput address SetQuery, defaultValue model.query ] []
-    , button [ class "search-button" {- TODO on click, run a search -} ] [ text "Search" ]
+    , button
+        [ class "search-button"
+        {- TODO on click, run a search -}
+        , onClick address Search
+        ]
+        [ text "Search" ]
     , ul
         [ class "results" ]
         (List.map (viewSearchResult address) model.results)
@@ -137,7 +145,12 @@ update : Action -> Model -> ( Model, Effects Action )
 update action model =
   case action of
     Search ->
-      ( model, Effects.none {- TODO use searchFeed to run a search -} )
+      -- ( model, Effects.none {- TODO use searchFeed to run a search -} )
+      let
+        searchEffect =
+          Effects.task (searchFeed model.query)
+      in
+        ( model, searchEffect )
 
     SetQuery query ->
       ( { model | query = query }, Effects.none )
