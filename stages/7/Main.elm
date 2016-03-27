@@ -35,7 +35,9 @@ search =
   Signal.mailbox ""
 
 
+-- 1 line below tells Elm to listen to JS?
 port githubSearch : Signal String
+-- 2 lines below tells Elm to send to JS?
 port githubSearch =
   search.signal
 
