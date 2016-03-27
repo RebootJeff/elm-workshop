@@ -20,6 +20,8 @@ searchFeed query =
       "https://api.github.com/search/repositories?q="
         ++ query
         ++ "+language:elm"
+        ++ "&access_token=390f87bf584beb2199d2e2f4c46b64de9c84087d"
+
 
     task =
       Http.get responseDecoder url
@@ -86,7 +88,10 @@ view address model =
 viewSearchResults : Address Action -> Dict ResultId SearchResult -> List Html
 viewSearchResults address results =
   -- TODO sort by star count and render
-  []
+  results
+    |> Dict.values
+    |> List.sortBy (.stars >> negate)
+    |> List.map (viewSearchResult address)
 
 
 onInput address wrap =
@@ -132,10 +137,16 @@ update action model =
         resultsById : Dict ResultId SearchResult
         resultsById =
           -- TODO convert results list into a Dict
-          Dict.empty
+          results
+            |> List.map (\result -> (result.id, result))
+            |> Dict.fromList
       in
         ( { model | results = resultsById }, Effects.none )
 
     DeleteById id ->
       -- TODO delete the result with the given id
-      ( model, Effects.none )
+      let
+        updatedResults =
+          Dict.remove id model.results
+      in
+        ( { model | results = updatedResults }, Effects.none )
