@@ -3,6 +3,7 @@ module ElmHub (..) where
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Html.Lazy exposing (..)
 import Http
 import Task exposing (Task)
 import Effects exposing (Effects)
@@ -70,15 +71,27 @@ viewSearchResults address results =
     |> Dict.values
     |> List.sortBy (.stars >> negate)
     |> filterResults
-    |> List.map (SearchResult.view address DeleteById)
+    |> List.map (lazy3 SearchResult.view address DeleteById)
 
 
 filterResults : List SearchResult.Model -> List SearchResult.Model
 filterResults results =
+  -- Use filterResultsRecurse for Tail Recursion
+  filterResultsRecurse [] results
+    |> List.reverse
+
+filterResultsRecurse : List SearchResult.Model -> List SearchResult.Model -> List SearchResult.Model
+filterResultsRecurse memo results =
   -- TODO filter out repos with 0 stars
   -- using a case-expression rather than List.filter
-  results
-
+  case results of
+    [] ->
+      memo
+    first :: rest ->
+      if first.stars > 0 then
+        filterResultsRecurse (first :: memo) rest
+      else
+        filterResultsRecurse memo rest
 
 onInput address wrap =
   on "input" targetValue (\val -> Signal.message address (wrap val))
