@@ -20,8 +20,6 @@ searchFeed query =
       "https://api.github.com/search/repositories?q="
         ++ query
         ++ "+language:elm"
-        ++ "&access_token=390f87bf584beb2199d2e2f4c46b64de9c84087d"
-
 
     task =
       Http.get responseDecoder url
